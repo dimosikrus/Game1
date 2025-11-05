@@ -1,35 +1,26 @@
 #pragma once
 
 #include <iostream>
-#include <optional>
 #include <unordered_map>
-#include <memory>
 
 #include <bass/bass.h>
 #include <bass_fx/bass_fx.h>
 
-#include "../filesystem/filesystem.hpp"
+//#include "../filesystem/filesystem.hpp"
+#include <filesystem>
+namespace fs = std::filesystem;
 
 class Sound {
     HSAMPLE file;
     HCHANNEL channel;
 public:
-    Sound(const fs::path& path) {
-        if (!chechFileExist(path)) 
-            std::cerr << "Error load Sound: " << path << '\n';
-        file = BASS_SampleLoad(FALSE, path.c_str(), 0, 0, 3, BASS_SAMPLE_OVER_POS);
-        channel = BASS_SampleGetChannel(file, FALSE);
-    }
+    Sound(const fs::path& path);
 
-    ~Sound() { BASS_SampleFree(file); }
+    ~Sound();
 
-    HCHANNEL getChannel() {
-        return channel;
-    }
+    HCHANNEL getChannel();
 
-    void play() {
-        BASS_ChannelPlay(channel, TRUE);
-    }
+    void play();
 };
 
 class Sounds {
@@ -37,25 +28,13 @@ class Sounds {
 public:
     Sounds() = default;
 
-    void reset() {
-        sounds.clear();
-    }
+    void reset();
 
-    void load(const std::string& key, const fs::path& path) {
-        sounds.emplace(key, std::make_unique<Sound>(path));
-    }
+    void load(const std::string& key, const fs::path& path);
 
-    void setVolume(float volume) {
-        for (auto& [_, sound] : sounds) {
-            BASS_ChannelSetAttribute(sound->getChannel(), BASS_ATTRIB_VOL, volume);
-        }
-    }
+    void setVolume(float volume);
 
-    void playSound(const std::string& key) {
-        if(sounds.find(key) != sounds.end()) {
-            sounds.at(key)->play();
-        };
-    }
+    void playSound(const std::string& key);
 };
 
 class Music {
@@ -76,163 +55,88 @@ class Music {
     };
 
     int get_pos() {
-            return static_cast<int>(
-                BASS_ChannelBytes2Seconds(
+        return static_cast<int>(
+            BASS_ChannelBytes2Seconds(
+                stream,
+                BASS_ChannelGetPosition(
                     stream,
-                    BASS_ChannelGetPosition(
-                        stream,
-                        BASS_POS_BYTE
-                    )
-                ) * 1000);
+                    BASS_POS_BYTE
+                )
+            ) * 1000);
     };
 public:
     Music() = default;
 
-    void reset() {
-        BASS_StreamFree(stream);
-    }
+    void reset();
 
-    void load(const fs::path& path) {
-        stream = BASS_StreamCreateFile(FALSE, path.c_str(), 0, 0, BASS_STREAM_AUTOFREE);
-        this->length = get_length();
-    }
+    void load(const fs::path& path);
 
-    int GetPos() { return get_pos(); };
+    int GetPos();
 
-    int GetLength() { return get_length(); };
+    int GetLength();
 
-    void ResetPos() {
-        BASS_ChannelSetPosition(stream, 0, BASS_POS_BYTE);
-    }
+    void ResetPos();
 
-    void SetPos(double pos) {
-        BASS_ChannelSetPosition(stream, BASS_ChannelSeconds2Bytes(stream, pos), BASS_POS_BYTE);
-    }
+    void SetPos(double pos);
 
-    void Play() {
-        BASS_ChannelPlay(stream, FALSE);
-    }
+    void Play();
 
-    void Pause() {
-        BASS_ChannelPause(stream);
-    }
+    void Pause();
 
-    void Stop() {
-        BASS_ChannelStop(stream);
-        reset();
-        length = 0;
-    }
+    void Stop();
 
-    void SetVolume(float volume) {
-        BASS_ChannelSetAttribute(stream, BASS_ATTRIB_VOL, volume);
-    }
+    void SetVolume(float volume);
 
-    bool checkActive() {
-        return BASS_ChannelIsActive(stream);
-    }
+    bool checkActive();
 };
 
 class Audio {
-private:
     Sounds sounds;
     Music music;
     float musicVolume = .4f;
     float soundsVolume = .3f;
     bool pausedAudio = false;
 public:
-    Audio() {
-        if(!BASS_Init(-1, 44100, 0, nullptr, nullptr)) 
-          std::cerr << "Ошибка инициализации BASS: " << BASS_ErrorGetCode() << '\n';
-    }
-    ~Audio() { BASS_Free(); }
+    Audio();
+    ~Audio();
 
     // Sounds
-    void playSound(const std::string& key) {
-        sounds.playSound(key);
-    }
+    void playSound(const std::string& key);
 
-    void setSoundsVolume(float volume) {
-        soundsVolume = volume;
-        sounds.setVolume(soundsVolume);
-    }
+    void setSoundsVolume(float volume);
 
-    void upSoundsVol() {
-        if(soundsVolume <= 1.f) {
-            soundsVolume += .1f;
-            sounds.setVolume(soundsVolume);
-        }
-        else soundsVolume = 1.f;
-    }
+    void upSoundsVol();
 
-    void downSoundsVol() {
-        if(soundsVolume >= 0) {
-            soundsVolume -= .1f;
-            sounds.setVolume(soundsVolume);
-        }
-        else soundsVolume = 0;
-    }
+    void downSoundsVol();
+
+    float getSoundVolume();
 
     // Music
-    void resetPos() {
-        music.ResetPos();
-    }
+    void resetPos();
 
-    void setPos(double pos) {
-        music.SetPos(pos);
-    }
+    void setPos(double pos);
 
+    void loadAudio(const fs::path& path);
 
-    void loadAudio(const fs::path& path) {
-        music.load(path);
-        music.SetVolume(musicVolume);
-    }
+    void playAudio();
 
-    void playAudio() {
-        music.Play();
-    }
+    void unPauseAudio();
 
-    void unPauseAudio() {
-        if (pausedAudio) {
-            pausedAudio = false;
-            music.Play();
-        }
-    }
+    void pauseAudio();
 
-    void pauseAudio() {
-        if (!pausedAudio) {
-            pausedAudio = true;
-            music.Pause();
-        }
-    }
+    void stopAudio();
 
-    void stopAudio() {
-        music.Stop();
-    }
+    void setAudioVolume(float volume);
 
+    void upAudioVol();
 
-    void setAudioVolume(float volume) {
-        musicVolume = volume;
-    }
+    void downAudioVol();
 
-    void upAudioVol() {
-        if(musicVolume < 1.f) {
-            musicVolume += .1f;
-            music.SetVolume(musicVolume);
-        }
-        else musicVolume = 1.f;
-    }
+    int getMusicPos();
 
-    void downAudioVol() {
-        if(musicVolume > 0) {
-            musicVolume -= .1f;
-            music.SetVolume(musicVolume);
-        }
-        else musicVolume = 0;
-    }
+    float getMusicVolume();
 
-    int getMusicPos() { return music.GetPos(); }
-    float getSoundVolume() { return soundsVolume; };
-    float getMusicVolume() { return musicVolume; };
-    bool checkMusicIsActive() { return music.checkActive(); }
-    bool paused() { return pausedAudio; }
+    bool checkMusicIsActive();
+
+    bool paused();
 };

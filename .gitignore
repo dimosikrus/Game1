@@ -3,3 +3,5 @@ out/
 
 # IDE:
 .vs/
+/CMakeLists.txt
+/CMakeSettings.json
