@@ -69,7 +69,7 @@ int main() {
     fpsText.setPosition({ 5.f, 5.f });
     fpsText.setCharacterSize(14u);
     float fpss[10];
-    for (int i = 0; i < 10; i++) { // fill array
+    for (int i = 0; i < 10; i++) { // fill fps array
         fpss[i] = 0;
     }
 
