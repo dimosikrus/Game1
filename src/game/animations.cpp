@@ -32,13 +32,13 @@ float Anim::easeInBack(float x) {
     return c3 * x * x * x - c1 * x * x;
 }
 
-float Anim::vulpesDustX(float t) {
+float Anim::CircleX(float t) {
     float kakayata_peremennaya = t * 2.f * 3.14159f;
     float x = cosf(kakayata_peremennaya);
     return x;
 }
 
-float Anim::vulpesDustY(float t) {
+float Anim::CircleY(float t) {
     float kakayata_peremennaya = t * 2.f * 3.14159f;
     float y = sinf(kakayata_peremennaya);
     return y;

@@ -86,8 +86,6 @@ int main() {
             oss << "FPS: " << avg(fpss, 10);
             fpsText.setString(oss.str());
             fpsDelayCounter = 0;
-            //Logger::log(LogLevel::INFO, oss.str(), Ansi::Color::BRIGHT_GREEN);
-            //Logger::log(LogLevel::INFO, std::to_string(dt), Ansi::Color::BRIGHT_GREEN);
         }
 
         fpsDelayCounter++;

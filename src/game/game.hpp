@@ -11,15 +11,15 @@ class Game {
 
 public:
     Game(sf::RenderWindow& window) : window(window) {
-        // serpepers::init();
+        //
 	}
 
 	void render() {
-        // serpepers::hru_hru();
+        //
     }
 
 	void update(float dt) {
-        // serpepers::eat_meat();
+        //
     }
 
 	void handleEvents(std::optional<sf::Event> event) {
