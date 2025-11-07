@@ -15,7 +15,7 @@ class Sound {
 public:
     Sound(const fs::path& path);
 
-    ~Sound();
+    ~Sound() { BASS_SampleFree(this->file); }
 
     HCHANNEL getChannel();
 
@@ -96,8 +96,12 @@ class Audio {
     float soundsVolume = .3f;
     bool pausedAudio = false;
 public:
-    Audio();
-    ~Audio();
+    Audio() {
+        if (!BASS_Init(-1, 44100, 0, nullptr, nullptr))
+            std::cerr << "Ошибка инициализации BASS: " << BASS_ErrorGetCode() << '\n';
+    }
+
+    ~Audio() { BASS_Free(); }
 
     // Sounds
     void playSound(const std::string& key);

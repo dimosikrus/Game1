@@ -26,8 +26,6 @@ Sound::Sound(const fs::path& path) {
     this->channel = BASS_SampleGetChannel(this->file, FALSE);
 }
 
-Sound::~Sound() { BASS_SampleFree(this->file); }
-
 HCHANNEL Sound::getChannel() {
     return this->channel;
 }
@@ -101,15 +99,7 @@ bool Music::checkActive() {
     return BASS_ChannelIsActive(stream);
 }
 
-
-Audio::Audio() {
-    if (!BASS_Init(-1, 44100, 0, nullptr, nullptr))
-        std::cerr << "Ошибка инициализации BASS: " << BASS_ErrorGetCode() << '\n';
-}
-
-Audio::~Audio() { BASS_Free(); }
-
-// Sounds
+// Audio
 void Audio::playSound(const std::string& key) {
     this->sounds.playSound(key);
 }
