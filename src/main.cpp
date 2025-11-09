@@ -48,7 +48,7 @@ int main() {
 
     Logger::log(LogLevel::DEBUG, "AUDIO INITIALIZED");
 
-    sf::VideoMode video_mode({ 1366,768 });
+    sf::VideoMode video_mode({ 1366u, 768u });
     constexpr auto window_style = sf::Style::Titlebar | sf::Style::Close;
     sf::RenderWindow window(video_mode, "Game", window_style);
     sf::Vector2f windowFSize({static_cast<float>(window.getSize().x),static_cast<float>(window.getSize().y)});
